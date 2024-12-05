@@ -11,7 +11,7 @@ const server = net.createServer((socket) => {
 
 
     const dataAsString = data.toString();
-    console.log(dataAsString);
+    // console.log(dataAsString);
     const tempData = dataAsString.split(" ")
     const dynamic_val = tempData[1].split("/")[2]
     if(tempData[1] === "/"){
@@ -24,7 +24,9 @@ const server = net.createServer((socket) => {
       }
     else if(tempData[1] === '/user-agent'){
       let userAgent = dataAsString.split("\n")[1]
-      userAgent = userAgent.split(":")[1]
+      userAgent = userAgent.split(": ")[1]
+      console.log(userAgent)
+      console.log(userAgent.length)
       const httpResponse: string = `HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: ${userAgent.length}\r\n\r\n${userAgent}`
       socket.write(httpResponse);
     }
