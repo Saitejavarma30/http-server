@@ -21,7 +21,7 @@ const server = net.createServer((socket) => {
         // @ts-ignore
         const dynamic_val: string =  tempData[1].match(/^\/echo\/(.+)$/)[1] ;
         console.log(dynamic_val);
-        const httpResponse: string = `HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: 3\r\n\r\n${dynamic_val}`
+        const httpResponse: string = `HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: ${dynamic_val.length}\r\n\r\n${dynamic_val}`
         socket.write(httpResponse);
       }
       else {
