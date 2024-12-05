@@ -23,11 +23,11 @@ const server = net.createServer((socket) => {
         socket.write(httpResponse);
       }
     else if(tempData[1] === '/user-agent'){
-      const userAgent = dataAsString.split("\r\n")[1]
+      const userAgent = dataAsString.split("\r\n")[2]
       const userAgentFinal = userAgent.split(": ")[1]
       console.log(userAgentFinal)
       console.log(userAgentFinal.length)
-      const httpResponse: string = `HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: ${userAgentFinal.length}\r\n\r\n${userAgentFinal}`
+      const httpResponse: string = `HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: ${userAgentFinal.length}\r\n\r\n${userAgentFinal.length}`
       socket.write(httpResponse);
     }
       else {
