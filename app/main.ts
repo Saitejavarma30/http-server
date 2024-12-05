@@ -11,23 +11,26 @@ const server = net.createServer((socket) => {
 
 
     const dataAsString = data.toString();
+    console.log(dataAsString);
     const tempData = dataAsString.split(" ")
+    const dynamic_val = tempData[1].split("/")[2]
     if(tempData[1] === "/"){
       const httpResponse: string = `HTTP/1.1 200 OK\r\n\r\n`;
       socket.write(httpResponse);
     }
-    else {
-      if(tempData[1].match(/^\/echo\/(.+)$/)){
-        // @ts-ignore
-        const dynamic_val: string =  tempData[1].match(/^\/echo\/(.+)$/)[1] ;
-        console.log(dynamic_val);
+    else if(tempData[1] === `/echo/${dynamic_val}`){
         const httpResponse: string = `HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: ${dynamic_val.length}\r\n\r\n${dynamic_val}`
         socket.write(httpResponse);
       }
+    else if(tempData[1] === '/user-agent'){
+      let userAgent = dataAsString.split("\n")[1]
+      userAgent = userAgent.split(":")[1]
+      const httpResponse: string = `HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: ${userAgent.length}\r\n\r\n${userAgent}`
+      socket.write(httpResponse);
+    }
       else {
         const httpResponse: string = `HTTP/1.1 404 Not Found\r\n\r\n`;
-        socket.write(httpResponse);
-      }
+        socket.write(httpResponse)
     }
    socket.end();
 
