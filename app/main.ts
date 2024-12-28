@@ -48,12 +48,11 @@ const server = net.createServer((socket) => {
     } else if (tempData[0] === 'POST') {
       if (tempData[1] === `/files/${dynamic_val}`) {
         const data = tempData[tempData.length - 1];
-        const insertData = data.split("\n").slice(-1)[0];
         const dir = process.argv.slice(3).join("/");
         const filePath = path.join(dir, dynamic_val);
-        console.log(insertData)
+        console.log(data)
         try {
-          fs.writeFileSync(filePath, insertData);
+          fs.writeFileSync(filePath, data);
           const httpResponse: string = `HTTP/1.1 201 Created\r\n\r\n`;
           socket.write(httpResponse);
         } catch (err) {
