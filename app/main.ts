@@ -1,4 +1,6 @@
 import * as net from "net";
+import * as fs from "node:fs";
+import * as path from "node:path";
 
 // You can use print statements as follows for debugging, they'll be visible when running tests.
 console.log("Logs from your program will appear here!");
@@ -26,8 +28,18 @@ const server = net.createServer((socket) => {
       const httpResponse: string = `HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: ${userAgentFinal.length}\r\n\r\n${userAgentFinal}`;
       socket.write(httpResponse);
     } else if (tempData[1] === `/files/${dynamic_val}`) {
-      const httpResponse: string = `HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: ${dynamic_val.length}\r\n\r\n${dynamic_val}`;
-      socket.write(httpResponse);
+      const dir = process.argv.slice(3).join("/");
+      const filePath = path.join(dir, dynamic_val);
+      const fileContent = fs.readFileSync(filePath);
+      fs.readFile(filePath, "utf8", (err: any, data: any) => {
+        if (err) {
+          const httpResponse: string = `HTTP/1.1 404 Not Found\r\n\r\n`;
+          socket.write(httpResponse);
+        } else {
+          const httpResponse: string = `HTTP/1.1 200 OK\r\nContent-Type: application/octet-stream\r\nContent-Length: ${fileContent.length}\r\n\r\n${fileContent}`;
+          socket.write(httpResponse);
+        }
+      });
     } else {
       const httpResponse: string = `HTTP/1.1 404 Not Found\r\n\r\n`;
       socket.write(httpResponse);
