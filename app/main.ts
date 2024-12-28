@@ -13,35 +13,54 @@ const server = net.createServer((socket) => {
     const dataAsString = data.toString();
     // console.log(dataAsString);
     const tempData = dataAsString.split(" ");
+    console.log(tempData);
     const dynamic_val = tempData[1].split("/")[2];
-    if (tempData[1] === "/") {
-      const httpResponse: string = `HTTP/1.1 200 OK\r\n\r\n`;
-      socket.write(httpResponse);
-    } else if (tempData[1] === `/echo/${dynamic_val}`) {
-      const httpResponse: string = `HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: ${dynamic_val.length}\r\n\r\n${dynamic_val}`;
-      socket.write(httpResponse);
-    } else if (tempData[1] === "/user-agent") {
-      const userAgent = dataAsString.split("\r\n")[2];
-      const userAgentFinal = userAgent.split(": ")[1];
-      console.log(userAgentFinal);
-      console.log(userAgentFinal.length);
-      const httpResponse: string = `HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: ${userAgentFinal.length}\r\n\r\n${userAgentFinal}`;
-      socket.write(httpResponse);
-    } else if (tempData[1] === `/files/${dynamic_val}`) {
-      const dir = process.argv.slice(3).join("/");
-      const filePath = path.join(dir, dynamic_val);
-      try{
-        const fileContent = fs.readFileSync(filePath);
-        const httpResponse: string = `HTTP/1.1 200 OK\r\nContent-Type: application/octet-stream\r\nContent-Length: ${fileContent.length}\r\n\r\n${fileContent}`;
+
+    if (tempData[0] === 'GET') {
+      if (tempData[1] === "/") {
+        const httpResponse: string = `HTTP/1.1 200 OK\r\n\r\n`;
         socket.write(httpResponse);
-      }
-      catch(err){
+      } else if (tempData[1] === `/echo/${dynamic_val}`) {
+        const httpResponse: string = `HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: ${dynamic_val.length}\r\n\r\n${dynamic_val}`;
+        socket.write(httpResponse);
+      } else if (tempData[1] === "/user-agent") {
+        const userAgent = dataAsString.split("\r\n")[2];
+        const userAgentFinal = userAgent.split(": ")[1];
+        console.log(userAgentFinal);
+        console.log(userAgentFinal.length);
+        const httpResponse: string = `HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: ${userAgentFinal.length}\r\n\r\n${userAgentFinal}`;
+        socket.write(httpResponse);
+      } else if (tempData[1] === `/files/${dynamic_val}`) {
+        const dir = process.argv.slice(3).join("/");
+        const filePath = path.join(dir, dynamic_val);
+        try {
+          const fileContent = fs.readFileSync(filePath);
+          const httpResponse: string = `HTTP/1.1 200 OK\r\nContent-Type: application/octet-stream\r\nContent-Length: ${fileContent.length}\r\n\r\n${fileContent}`;
+          socket.write(httpResponse);
+        } catch (err) {
+          const httpResponse: string = `HTTP/1.1 404 Not Found\r\n\r\n`;
+          socket.write(httpResponse);
+        }
+      } else {
         const httpResponse: string = `HTTP/1.1 404 Not Found\r\n\r\n`;
         socket.write(httpResponse);
       }
-    } else {
-      const httpResponse: string = `HTTP/1.1 404 Not Found\r\n\r\n`;
-      socket.write(httpResponse);
+    } else if (tempData[0] === 'POST') {
+      if (tempData[1] === `/files/${dynamic_val}`) {
+        const data = tempData[tempData.length - 1];
+        const insertData = data.split("\n").slice(-1)[0];
+        const dir = process.argv.slice(3).join("/");
+        const filePath = path.join(dir, dynamic_val);
+        console.log(insertData)
+        try {
+          fs.writeFileSync(filePath, insertData);
+          const httpResponse: string = `HTTP/1.1 201 Created\r\n\r\n`;
+          socket.write(httpResponse);
+        } catch (err) {
+          const httpResponse: string = `HTTP/1.1 500 Internal Server Error\r\n\r\n`;
+          socket.write(httpResponse);
+        }
+      }
     }
     socket.end();
   });
