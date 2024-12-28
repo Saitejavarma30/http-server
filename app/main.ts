@@ -30,15 +30,15 @@ const server = net.createServer((socket) => {
     } else if (tempData[1] === `/files/${dynamic_val}`) {
       const dir = process.argv.slice(3).join("/");
       const filePath = path.join(dir, dynamic_val);
-      fs.readFile(filePath, "utf8", (err: any, data: any) => {
-        if (err) {
-          const httpResponse: string = `HTTP/1.1 404 Not Found\r\n\r\n`;
-          socket.write(httpResponse);
-        } else {
-          const httpResponse: string = `HTTP/1.1 200 OK\r\nContent-Type: application/octet-stream\r\nContent-Length: ${data.length}\r\n\r\n${data}`;
-          socket.write(httpResponse);
-        }
-      });
+      try{
+        const fileContent = fs.readFileSync(filePath);
+        const httpResponse: string = `HTTP/1.1 200 OK\r\nContent-Type: application/octet-stream\r\nContent-Length: ${fileContent.length}\r\n\r\n${fileContent}`;
+        socket.write(httpResponse);
+      }
+      catch(err){
+        const httpResponse: string = `HTTP/1.1 404 Not Found\r\n\r\n`;
+        socket.write(httpResponse);
+      }
     } else {
       const httpResponse: string = `HTTP/1.1 404 Not Found\r\n\r\n`;
       socket.write(httpResponse);
