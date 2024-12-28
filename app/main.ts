@@ -47,7 +47,7 @@ const server = net.createServer((socket) => {
       }
     } else if (tempData[0] === 'POST') {
       if (tempData[1] === `/files/${dynamic_val}`) {
-        const data = tempData[tempData.length - 1];
+        const data = dataAsString.split('\r\n\r\n').slice(-1)[0]
         const dir = process.argv.slice(3).join("/");
         const filePath = path.join(dir, dynamic_val);
         console.log(data)
